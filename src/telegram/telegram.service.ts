@@ -99,65 +99,67 @@ Mọi người chỉ cần bấm nút bên dưới và nhập CODE cá nhân là
 
 và gửi anh NICE (@N_I_C_E_838) để xử lý theo quy định của team 😈`;
 
-    const telegramApiUrl = `https://api.telegram.org/bot${token}/sendMessage`;
-
-    const payload = {
-      chat_id: chatId,
-      text: messageText,
-      parse_mode: 'HTML',
-      reply_markup: {
-        inline_keyboard: [
-          [
-            {
-              text: '📝 Báo Cáo Ngay',
-              url: feUrl,
-            },
-          ],
-          [
-            {
-              text: '🔗 Dashboard',
-              url: feUrl.includes('?') ? `${feUrl}&mode=admin` : `${feUrl}?mode=admin`,
-            },
-          ],
-        ],
-      },
-    };
-
-    try {
-      const res = await fetch(telegramApiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await res.json();
-      if (!res.ok || !data.ok) {
-        const teleErr = data.description || 'Lỗi gửi tin nhắn Telegram';
-
-        if (teleErr.includes('chat not found')) {
-          throw new BadRequestException(
-            'Lỗi "Chat not found": Không tìm thấy nhóm Telegram! Bạn đã THÊM BOT VÀO NHÓM và kiểm tra đúng Chat ID (dạng số âm như -100xxxxxxxxxx) chưa?'
-          );
-        } else if (teleErr.includes('Wrong HTTP URL') || teleErr.includes('invalid')) {
-          throw new BadRequestException(
-            'Lỗi "Wrong HTTP URL": Telegram yêu cầu nút bấm phải là link HTTPS công khai (VD: https://baocao6f.online). Vui lòng đổi link localhost thành tên miền web.'
-          );
-        } else if (teleErr.includes('Unauthorized') || teleErr.includes('bot token')) {
-          throw new BadRequestException(
-            'Lỗi "Unauthorized": Bot Token không hợp lệ. Vui lòng kiểm tra lại Token lấy từ @BotFather.'
-          );
-        } else {
-          throw new BadRequestException(`Lỗi Telegram API: ${teleErr}`);
-        }
-      }
-
-      this.logger.log(`Successfully sent Telegram message to chat ${chatId}`);
-      return { success: true, telegramResponse: data };
-    } catch (err) {
-      if (err instanceof BadRequestException) {
-        throw err;
-      }
-      throw new BadRequestException(`Lỗi kết nối API Telegram: ${err.message}`);
+    const chatIds = chatId.split(/[,;\n]+/).map((c) => c.trim()).filter(Boolean);
+    if (chatIds.length === 0) {
+      throw new BadRequestException('Chưa nhập Chat ID Nhóm Telegram!');
     }
+
+    const results = [];
+    let lastError = '';
+
+    for (const targetId of chatIds) {
+      const payload = {
+        chat_id: targetId,
+        text: messageText,
+        parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: '📝 Báo Cáo Ngay',
+                url: feUrl,
+              },
+            ],
+            [
+              {
+                text: '🔗 Dashboard',
+                url: feUrl.includes('?') ? `${feUrl}&mode=admin` : `${feUrl}?mode=admin`,
+              },
+            ],
+          ],
+        },
+      };
+
+      try {
+        const res = await fetch(telegramApiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.ok) {
+          lastError = data.description || 'Lỗi gửi tin nhắn Telegram';
+          this.logger.error(`Failed to send to chat ${targetId}: ${lastError}`);
+        } else {
+          results.push(data);
+          this.logger.log(`Successfully sent Telegram message to chat ${targetId}`);
+        }
+      } catch (err) {
+        lastError = err.message;
+        this.logger.error(`Connection error sending to chat ${targetId}: ${err.message}`);
+      }
+    }
+
+    if (results.length === 0) {
+      if (lastError.includes('chat not found')) {
+        throw new BadRequestException(
+          'Lỗi "Chat not found": Không tìm thấy nhóm Telegram! Bạn đã THÊM BOT VÀO NHÓM và kiểm tra đúng Chat ID (dạng số âm như -100xxxxxxxxxx) chưa?'
+        );
+      }
+      throw new BadRequestException(`Lỗi gửi Telegram: ${lastError || 'Không thể gửi đến nhóm nào'}`);
+    }
+
+    return { success: true, count: results.length, total: chatIds.length };
   }
 }
