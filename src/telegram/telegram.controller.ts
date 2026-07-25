@@ -16,7 +16,7 @@ export class TelegramController {
   }
 
   @Post('send-now')
-  sendNow(@Body() body: { botToken?: string; chatId?: string; feUrl?: string }) {
-    return this.telegramService.sendDailyReminder(body.botToken, body.chatId, body.feUrl);
+  sendNow(@Body() body: { botToken?: string; chatId?: string; feUrl?: string; messageText?: string }) {
+    return this.telegramService.sendDailyReminder(body.botToken, body.chatId, body.feUrl, body.messageText);
   }
 }

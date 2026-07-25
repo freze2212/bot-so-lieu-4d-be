@@ -1,12 +1,30 @@
 import { Injectable, Logger, OnModuleInit, BadRequestException } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
 
+const DEFAULT_TELEGRAM_MESSAGE = `🤖📊 BOT BÁO CÁO HẰNG NGÀY 📊🤖
+
+Tới giờ báo cáo số liệu hôm nay rồi nha anh em ✨
+
+Mọi người chỉ cần bấm nút bên dưới và nhập CODE cá nhân là có thể báo cáo ngay 🚀
+
+📝 Nếu nhập sai số liệu vẫn có thể vào chỉnh sửa lại sau đó nha~
+
+⚠️ Mọi người nhớ báo cáo đầy đủ và đúng giờ quy định.
+
+Đúng 13:00 ngày mai em sẽ tổng hợp lại danh sách các trường hợp:
+• Chưa báo cáo
+• Báo cáo thiếu
+• Báo sai số liệu
+
+và gửi anh NICE (@N_I_C_E_838) để xử lý theo quy định của team 😈`;
+
 export interface TelegramBotConfig {
   botToken: string;
   chatId: string;
   scheduleTime: string; // "13:00"
   feUrl: string; // "https://baocao6f.online"
   enabled: boolean;
+  messageText?: string;
 }
 
 @Injectable()
@@ -18,6 +36,7 @@ export class TelegramService implements OnModuleInit {
     scheduleTime: process.env.SCHEDULE_TIME || '13:00',
     feUrl: process.env.FE_URL || 'https://baocao4d.online',
     enabled: true,
+    messageText: DEFAULT_TELEGRAM_MESSAGE,
   };
 
   constructor(private readonly db: DatabaseService) {}
@@ -30,6 +49,9 @@ export class TelegramService implements OnModuleInit {
   }
 
   getConfig(): TelegramBotConfig {
+    if (!this.config.messageText) {
+      this.config.messageText = DEFAULT_TELEGRAM_MESSAGE;
+    }
     return this.config;
   }
 
@@ -57,7 +79,7 @@ export class TelegramService implements OnModuleInit {
     }
   }
 
-  async sendDailyReminder(testBotToken?: string, testChatId?: string, testFeUrl?: string) {
+  async sendDailyReminder(testBotToken?: string, testChatId?: string, testFeUrl?: string, customMessageText?: string) {
     const token = (testBotToken !== undefined ? testBotToken : this.config.botToken || '').trim();
     const chatId = (testChatId !== undefined ? testChatId : this.config.chatId || '').trim();
     let feUrl = (testFeUrl !== undefined ? testFeUrl : this.config.feUrl || 'https://baocao4d.online').trim();
@@ -81,23 +103,9 @@ export class TelegramService implements OnModuleInit {
       feUrl = `https://${feUrl}`;
     }
 
-    const messageText =
-`🤖📊 BOT BÁO CÁO HẰNG NGÀY 📊🤖
-
-Tới giờ báo cáo số liệu hôm nay rồi nha anh em ✨
-
-Mọi người chỉ cần bấm nút bên dưới và nhập CODE cá nhân là có thể báo cáo ngay 🚀
-
-📝 Nếu nhập sai số liệu vẫn có thể vào chỉnh sửa lại sau đó nha~
-
-⚠️ Mọi người nhớ báo cáo đầy đủ và đúng giờ quy định.
-
-Đúng 13:00 ngày mai em sẽ tổng hợp lại danh sách các trường hợp:
-• Chưa báo cáo
-• Báo cáo thiếu
-• Báo sai số liệu
-
-và gửi anh NICE (@N_I_C_E_838) để xử lý theo quy định của team 😈`;
+    const messageText = customMessageText !== undefined && customMessageText.trim() !== ''
+      ? customMessageText
+      : (this.config.messageText || DEFAULT_TELEGRAM_MESSAGE);
 
     const telegramApiUrl = `https://api.telegram.org/bot${token}/sendMessage`;
 
