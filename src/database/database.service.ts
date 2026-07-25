@@ -132,10 +132,28 @@ export class DatabaseService implements OnModuleInit {
     return newEmp;
   }
 
-  deleteEmployee(id: string): boolean {
-    const initialLen = this.data.employees.length;
-    this.data.employees = this.data.employees.filter(e => e.id !== id && e.code.toLowerCase() !== id.toLowerCase());
-    if (this.data.employees.length !== initialLen) {
+  deleteEmployee(idOrCode: string): boolean {
+    const targetEmp = this.data.employees.find(
+      e => e.id === idOrCode || e.code.toLowerCase() === idOrCode.toLowerCase()
+    );
+
+    const empCode = targetEmp ? targetEmp.code.toUpperCase() : idOrCode.toUpperCase();
+
+    const empBefore = this.data.employees.length;
+    const repBefore = this.data.reports.length;
+
+    // Remove employee entry
+    this.data.employees = this.data.employees.filter(
+      e => e.id !== idOrCode && e.code.toLowerCase() !== idOrCode.toLowerCase()
+    );
+
+    // Remove all associated reports for this employee code
+    this.data.reports = this.data.reports.filter(
+      r => r.employeeCode.toUpperCase() !== empCode
+    );
+
+    const changed = this.data.employees.length !== empBefore || this.data.reports.length !== repBefore;
+    if (changed) {
       this.save();
       return true;
     }
