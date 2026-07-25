@@ -132,6 +132,16 @@ export class DatabaseService implements OnModuleInit {
     return newEmp;
   }
 
+  deleteEmployee(id: string): boolean {
+    const initialLen = this.data.employees.length;
+    this.data.employees = this.data.employees.filter(e => e.id !== id && e.code.toLowerCase() !== id.toLowerCase());
+    if (this.data.employees.length !== initialLen) {
+      this.save();
+      return true;
+    }
+    return false;
+  }
+
   getReports(): Report[] {
     return this.data.reports;
   }

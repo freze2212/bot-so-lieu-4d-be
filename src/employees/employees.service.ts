@@ -19,4 +19,12 @@ export class EmployeesService {
     }
     return this.db.addEmployee(name, code);
   }
+
+  delete(id: string): { success: boolean; message: string } {
+    const deleted = this.db.deleteEmployee(id);
+    if (!deleted) {
+      throw new BadRequestException('Không tìm thấy nhân viên cần xóa');
+    }
+    return { success: true, message: 'Đã xóa nhân viên thành công' };
+  }
 }
