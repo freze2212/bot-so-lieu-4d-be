@@ -99,6 +99,8 @@ Mọi người chỉ cần bấm nút bên dưới và nhập CODE cá nhân là
 
 và gửi anh NICE (@N_I_C_E_838) để xử lý theo quy định của team 😈`;
 
+    const telegramApiUrl = `https://api.telegram.org/bot${token}/sendMessage`;
+
     const chatIds = chatId.split(/[,;\n]+/).map((c) => c.trim()).filter(Boolean);
     if (chatIds.length === 0) {
       throw new BadRequestException('Chưa nhập Chat ID Nhóm Telegram!');
