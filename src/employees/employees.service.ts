@@ -21,10 +21,7 @@ export class EmployeesService {
   }
 
   delete(id: string): { success: boolean; message: string } {
-    const deleted = this.db.deleteEmployee(id);
-    if (!deleted) {
-      throw new BadRequestException('Không tìm thấy nhân viên cần xóa');
-    }
-    return { success: true, message: 'Đã xóa nhân viên thành công' };
+    this.db.deleteEmployee(id);
+    return { success: true, message: 'Đã xóa nhân viên và toàn bộ thống kê thành công' };
   }
 }
