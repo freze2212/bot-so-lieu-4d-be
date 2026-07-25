@@ -1,0 +1,100 @@
+{
+  "admin": {
+    "username": "admin",
+    "passwordHash": "admin123"
+  },
+  "employees": [
+    {
+      "id": "1",
+      "name": "GHE BIFRONS",
+      "code": "GG88F6F04",
+      "createdAt": "2026-07-25T02:31:51.881Z"
+    },
+    {
+      "id": "2",
+      "name": "NGUYEN VAN A",
+      "code": "NVA001",
+      "createdAt": "2026-07-25T02:31:51.882Z"
+    },
+    {
+      "id": "3",
+      "name": "TRAN THI B",
+      "code": "TTB002",
+      "createdAt": "2026-07-25T02:31:51.882Z"
+    },
+    {
+      "id": "1784946730173",
+      "name": "LE VAN DAU",
+      "code": "LVD888",
+      "createdAt": "2026-07-25T02:32:10.173Z"
+    }
+  ],
+  "reports": [
+    {
+      "id": "rep-3",
+      "employeeCode": "GG88F6F04",
+      "employeeName": "GHE BIFRONS",
+      "date": "2026-07-25",
+      "registeredCount": 18,
+      "firstDepositCount": 10,
+      "totalDeposit": 21000000,
+      "totalBet": 62000000,
+      "createdAt": "2026-07-25T08:15:00.000Z"
+    },
+    {
+      "id": "rep-1784946813525",
+      "employeeCode": "FREZE",
+      "employeeName": "Unknown",
+      "date": "2026-07-25",
+      "registeredCount": 22,
+      "firstDepositCount": 10,
+      "totalDeposit": 312123,
+      "totalBet": 12,
+      "createdAt": "2026-07-25T02:33:33.525Z"
+    },
+    {
+      "id": "rep-1784946730178",
+      "employeeCode": "GG88F6F04",
+      "employeeName": "GHE BIFRONS",
+      "date": "2026-07-25",
+      "registeredCount": 25,
+      "firstDepositCount": 15,
+      "totalDeposit": 35000000,
+      "totalBet": 90000000,
+      "createdAt": "2026-07-25T02:32:10.178Z"
+    },
+    {
+      "id": "rep-2",
+      "employeeCode": "NVA001",
+      "employeeName": "NGUYEN VAN A",
+      "date": "2026-07-24",
+      "registeredCount": 22,
+      "firstDepositCount": 12,
+      "totalDeposit": 28000000,
+      "totalBet": 85000000,
+      "createdAt": "2026-07-24T11:30:00.000Z"
+    },
+    {
+      "id": "rep-1",
+      "employeeCode": "GG88F6F04",
+      "employeeName": "GHE BIFRONS",
+      "date": "2026-07-24",
+      "registeredCount": 15,
+      "firstDepositCount": 8,
+      "totalDeposit": 15000000,
+      "totalBet": 45000000,
+      "createdAt": "2026-07-24T10:00:00.000Z"
+    },
+    {
+      "id": "rep-1784947256913",
+      "employeeCode": "GG88F6F04",
+      "employeeName": "GHE BIFRONS",
+      "date": "2026-07-25",
+      "registeredCount": 25,
+      "firstDepositCount": 15,
+      "totalDeposit": 35000000,
+      "totalBet": 90000000,
+      "createdAt": "2026-07-25T02:40:56.913Z"
+    }
+  ]
+}
