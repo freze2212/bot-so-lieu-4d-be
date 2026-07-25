@@ -13,10 +13,10 @@ export interface TelegramBotConfig {
 export class TelegramService implements OnModuleInit {
   private readonly logger = new Logger(TelegramService.name);
   private config: TelegramBotConfig = {
-    botToken: '',
-    chatId: '',
-    scheduleTime: '13:00',
-    feUrl: 'https://baocao4d.online',
+    botToken: process.env.TELEGRAM_BOT_TOKEN || '',
+    chatId: process.env.TELEGRAM_CHAT_ID || '',
+    scheduleTime: process.env.SCHEDULE_TIME || '13:00',
+    feUrl: process.env.FE_URL || 'https://baocao4d.online',
     enabled: true,
   };
 
