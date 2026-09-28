@@ -46,7 +46,7 @@ export class TelegramService implements OnModuleInit {
     botToken: process.env.TELEGRAM_BOT_TOKEN || '',
     chatId: process.env.TELEGRAM_CHAT_ID || '',
     scheduleTime: process.env.SCHEDULE_TIME || '13:00',
-    feUrl: process.env.FE_URL || 'https://baocao4d.online',
+    feUrl: process.env.FE_URL || 'https://baocaosolieu.com',
     enabled: true,
     messageText: DEFAULT_TELEGRAM_MESSAGE,
     unreportedEnabled: true,
@@ -160,7 +160,7 @@ export class TelegramService implements OnModuleInit {
   async sendDailyReminder(testBotToken?: string, testChatId?: string, testFeUrl?: string, customMessageText?: string) {
     const token = (testBotToken !== undefined ? testBotToken : this.config.botToken || '').trim();
     const chatId = (testChatId !== undefined ? testChatId : this.config.chatId || '').trim();
-    let feUrl = (testFeUrl !== undefined ? testFeUrl : this.config.feUrl || 'https://baocao4d.online').trim();
+    let feUrl = (testFeUrl !== undefined ? testFeUrl : this.config.feUrl || 'https://baocaosolieu.com').trim();
 
     if (!token) {
       throw new BadRequestException('Chưa nhập Telegram Bot Token!');
@@ -257,7 +257,7 @@ export class TelegramService implements OnModuleInit {
   ) {
     const token = (testBotToken !== undefined ? testBotToken : this.config.botToken || '').trim();
     const chatId = (testChatId !== undefined ? testChatId : this.config.chatId || '').trim();
-    let feUrl = (testFeUrl !== undefined ? testFeUrl : this.config.feUrl || 'https://baocao4d.online').trim();
+    let feUrl = (testFeUrl !== undefined ? testFeUrl : this.config.feUrl || 'https://baocaosolieu.com').trim();
 
     if (!token) {
       throw new BadRequestException('Chưa nhập Telegram Bot Token!');
