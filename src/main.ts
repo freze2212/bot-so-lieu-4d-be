@@ -1,9 +1,7 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import * as fs from 'fs';
 import * as path from 'path';
 
-// Parse .env manually if exists
+// Parse .env BEFORE importing AppModule
 try {
   const envPath = path.join(process.cwd(), '.env');
   if (fs.existsSync(envPath)) {
@@ -23,6 +21,9 @@ try {
   // ignore
 }
 
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
@@ -35,7 +36,7 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
 
-  const PORT = process.env.PORT || 6030;
+  const PORT = process.env.PORT || 3001;
   await app.listen(PORT);
   console.log(`🚀 NestJS Backend server is running on: http://localhost:${PORT}/api`);
 }

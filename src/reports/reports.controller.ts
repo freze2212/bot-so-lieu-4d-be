@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query } from '@nestjs/common';
 import { ReportsService, CreateReportDto } from './reports.service';
 
 @Controller('reports')
@@ -6,17 +6,17 @@ export class ReportsController {
   constructor(private readonly reportsService: ReportsService) {}
 
   @Post()
-  submitReport(@Body() dto: CreateReportDto) {
-    return this.reportsService.submitReport(dto);
+  async submitReport(@Body() dto: CreateReportDto) {
+    return await this.reportsService.submitReport(dto);
   }
 
   @Get()
-  getAllReports() {
-    return this.reportsService.getAllReports();
+  async getAllReports() {
+    return await this.reportsService.getAllReports();
   }
 
   @Get('stats')
-  getStats() {
-    return this.reportsService.getStats();
+  async getStats(@Query('employeeCode') employeeCode?: string) {
+    return await this.reportsService.getStats(employeeCode);
   }
 }

@@ -27,7 +27,7 @@ async function runTests() {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      employeeCode: 'GG88F6F04',
+      employeeCode: 'GG88F4D04',
       date: '2026-07-25',
       registeredCount: 25,
       firstDepositCount: 15,
@@ -38,13 +38,18 @@ async function runTests() {
   const reportData = await reportRes.json();
   console.log('Submit Report Response:', reportData);
 
-  // 4. Admin Get Stats
-  console.log('\n[TEST 4] Fetch Aggregated Stats for Charts (GET /api/reports/stats)...');
+  // 4. Admin Get Stats (Grand Total)
+  console.log('\n[TEST 4] Fetch Aggregated Grand Total Stats (GET /api/reports/stats)...');
   const statsRes = await fetch('http://localhost:3001/api/reports/stats');
   const statsData = await statsRes.json();
-  console.log('Summary Stats:', statsData.summary);
-  console.log('Daily Breakdown (for line/bar charts):', statsData.dailyStats);
-  console.log('Employee Breakdown (for leaderboards/bar charts):', statsData.employeeStats);
+  console.log('Grand Total Summary Stats:', statsData.summary);
+
+  // 5. Per-Employee Get Stats
+  console.log('\n[TEST 5] Fetch Per-Employee Stats for GG88F4D04 (GET /api/reports/stats?employeeCode=GG88F4D04)...');
+  const empStatsRes = await fetch('http://localhost:3001/api/reports/stats?employeeCode=GG88F4D04');
+  const empStatsData = await empStatsRes.json();
+  console.log('Employee GG88F4D04 Summary Stats:', empStatsData.summary);
+  console.log('Employee GG88F4D04 Daily Stats:', empStatsData.dailyStats);
 
   console.log('\n================ LOGIC VERIFICATION PASSED PERFECTLY ================');
 }
