@@ -25,6 +25,40 @@ Hôm nay vẫn còn {COUNT} nhân viên chưa gửi báo cáo:
 
 📢 Mọi người khẩn trương bấm nút bên dưới nộp báo cáo đúng giờ nhé! 🚀`;
 
+const VIETNAM_TZ = 'Asia/Ho_Chi_Minh';
+
+function getVietnamClock(date = new Date()): { hhmm: string; dateKey: string; formatted: string } {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: VIETNAM_TZ,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(date);
+  const pick = (type: Intl.DateTimeFormatPartTypes) => parts.find((p) => p.type === type)?.value || '';
+  let hour = pick('hour');
+  if (hour === '24') hour = '00';
+  const minute = pick('minute').padStart(2, '0');
+  const month = pick('month').padStart(2, '0');
+  const day = pick('day').padStart(2, '0');
+  const year = pick('year');
+  return {
+    hhmm: `${hour.padStart(2, '0')}:${minute}`,
+    dateKey: `${year}-${month}-${day}`,
+    formatted: `${day}/${month}/${year}`,
+  };
+}
+
+function normalizeScheduleTime(value?: string): string {
+  const match = (value || '').trim().match(/^(\d{1,2})\s*:\s*(\d{2})/);
+  if (!match) return (value || '').trim();
+  const hour = Math.min(23, Math.max(0, Number(match[1])));
+  const minute = Math.min(59, Math.max(0, Number(match[2])));
+  return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+}
+
 export interface TelegramBotConfig {
   botToken: string;
   chatId: string;
@@ -60,7 +94,8 @@ export class TelegramService implements OnModuleInit {
   constructor(private readonly db: DatabaseService) {}
 
   onModuleInit() {
-    // Check every minute for scheduled time match
+    const clock = getVietnamClock();
+    this.logger.log(`Telegram scheduler uses Asia/Ho_Chi_Minh (GMT+7). Now ${clock.formatted} ${clock.hhmm}`);
     setInterval(() => {
       this.checkScheduleAndSend();
     }, 60000);
@@ -93,12 +128,9 @@ export class TelegramService implements OnModuleInit {
   async getTodayUnreportedEmployees(): Promise<{ missingEmployees: Employee[]; totalEmployeesCount: number; todayFormatted: string }> {
     const allEmployees = await this.db.getEmployees();
 
-    const d = new Date();
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    const todayStr = `${year}-${month}-${day}`;
-    const todayFormatted = `${day}/${month}/${year}`;
+    const clock = getVietnamClock();
+    const todayStr = clock.dateKey;
+    const todayFormatted = clock.formatted;
 
     const reports = await this.db.getReports();
 
@@ -125,13 +157,14 @@ export class TelegramService implements OnModuleInit {
       return;
     }
 
-    const now = new Date();
-    const currentHHMM = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-    const todayStr = now.toISOString().split('T')[0];
-    const minuteKey = `${todayStr}_${currentHHMM}`;
+    const clock = getVietnamClock();
+    const currentHHMM = clock.hhmm;
+    const minuteKey = `${clock.dateKey}_${currentHHMM}`;
+    const generalTime = normalizeScheduleTime(this.config.scheduleTime);
+    const unreportedTime = normalizeScheduleTime(this.config.unreportedScheduleTime);
 
     // 1. Check General Daily Reminder
-    if (this.config.enabled && currentHHMM === this.config.scheduleTime) {
+    if (this.config.enabled && currentHHMM === generalTime) {
       if (this.lastSentGeneralMinute !== minuteKey) {
         this.lastSentGeneralMinute = minuteKey;
         this.logger.log(`⏰ Scheduled time hit for General Reminder (${currentHHMM})! Sending to Telegram...`);
@@ -144,7 +177,7 @@ export class TelegramService implements OnModuleInit {
     }
 
     // 2. Check Unreported Employees Reminder
-    if (this.config.unreportedEnabled && currentHHMM === this.config.unreportedScheduleTime) {
+    if (this.config.unreportedEnabled && currentHHMM === unreportedTime) {
       if (this.lastSentUnreportedMinute !== minuteKey) {
         this.lastSentUnreportedMinute = minuteKey;
         this.logger.log(`⏰ Scheduled time hit for Unreported Reminder (${currentHHMM})! Sending to Telegram...`);
