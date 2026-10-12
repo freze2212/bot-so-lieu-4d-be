@@ -18,9 +18,9 @@ Mọi người chỉ cần bấm nút bên dưới và nhập CODE cá nhân là
 
 và gửi anh NICE (@N_I_C_E_838) để xử lý theo quy định của team 😈`;
 
-const DEFAULT_UNREPORTED_MESSAGE = `⚠️ DANH SÁCH NHÂN VIÊN CHƯA BÁO CÁO HÔM NAY ({DATE}) ⚠️
+const DEFAULT_UNREPORTED_MESSAGE = `⚠️ DANH SÁCH NHÂN VIÊN CHƯA BÁO CÁO NGÀY {DATE} ⚠️
 
-Hôm nay vẫn còn {COUNT} nhân viên chưa gửi báo cáo:
+Vẫn còn {COUNT} nhân viên chưa gửi báo cáo số liệu ngày {DATE}:
 {LIST}
 
 📢 Mọi người khẩn trương bấm nút bên dưới nộp báo cáo đúng giờ nhé! 🚀`;
@@ -128,15 +128,16 @@ export class TelegramService implements OnModuleInit {
   async getTodayUnreportedEmployees(): Promise<{ missingEmployees: Employee[]; totalEmployeesCount: number; todayFormatted: string }> {
     const allEmployees = await this.db.getEmployees();
 
-    const clock = getVietnamClock();
-    const todayStr = clock.dateKey;
-    const todayFormatted = clock.formatted;
+    // Employees submit the previous day's figures, so check yesterday's report date (Vietnam time).
+    const reportDay = getVietnamClock(new Date(Date.now() - 24 * 60 * 60 * 1000));
+    const reportDateKey = reportDay.dateKey;
+    const todayFormatted = reportDay.formatted;
 
     const reports = await this.db.getReports();
 
     const reportedCodes = new Set<string>();
     for (const r of reports) {
-      if (r.date === todayStr && r.employeeCode) {
+      if (r.date === reportDateKey && r.employeeCode) {
         reportedCodes.add(r.employeeCode.trim().toUpperCase());
       }
     }
